@@ -869,6 +869,89 @@
     },
   ];
 
+  const CONCEPT_EXAMPLES = {
+    Sender:
+      "A UPay sender wants to pay @moemix $1 but has no UPay balance. The sender signs signalIntent and later fulfillIntent, while Cash App is used for the fiat leg.",
+    Receiver:
+      "The receiver is @moemix. They do not interact with Cash App in this flow; they simply receive USDC after fulfill reconciliation confirms the release.",
+    Maker:
+      "A maker wants to cash out 10 USDC. They create a deposit with their Cash App payee, then a sender reserves $1 of that liquidity and pays the maker off-chain.",
+    "Payment Rail":
+      "Cash App is the rail in this mock. The same lifecycle could support another rail, but rail-specific normalization, payee display, and verification rules would change.",
+    "Payment Instructions":
+      "After INTENT_SIGNALED, the app can show 'send $1.00 to $maab161151'. Before that, showing those instructions is risky because the maker liquidity might not be reserved.",
+    Quote:
+      "A quote exists when the backend finds an active maker deposit with enough remaining liquidity for the sender's desired amount. The quote becomes an order only when the sender starts the send.",
+    Order:
+      "The order exists because one send crosses many systems. It gives mobile, jobs, support, attestation, and chain reconciliation one stable object to coordinate around.",
+    "Order Status":
+      "When signalIntent is submitted, the status becomes SIGNALING_INTENT. That tells mobile to wait, while the signal_reconcile job checks whether the chain reservation actually happened.",
+    "Order View DTO":
+      "A raw BUYER_TEE_INPUT_RECEIVED status is not enough for mobile. The DTO can say allowedActions is empty while the job is queued, or retry_buyer_tee if the job is dead.",
+    "Allowed Action":
+      "The app does not hard-code 'if status equals X, enable button Y'. It asks the backend, and the backend returns fulfill only after ATTESTATION_SIGNED.",
+    "Maker Deposit":
+      "Deposit 2607 starts with $10 remaining and $0 outstanding. After a $1 intent is signaled, outstanding becomes $1 so another sender cannot reserve that same dollar.",
+    "Pending Deposit":
+      "After the maker taps createDeposit, there is only a userOpHash. The pending deposit exists until deposit_reconcile decodes the real on-chain deposit id.",
+    "Deposit Submission DTO":
+      "The maker screen can show SUBMITTED immediately after createDeposit, then CONFIRMED with depositId 2607 once the chain receipt is decoded.",
+    "Stablecoin Transfer / Activity Row":
+      "When fulfill succeeds, the chain moved escrowed USDC, but the product still needs a history item saying sender paid receiver $1 through ZKP2P.",
+    Prepare:
+      "Prepare signal options exists because the backend can build calldata, but the user still has to sign it. If the user closes the app after prepare, nothing should be reserved.",
+    UserOperation:
+      "Instead of the mobile app sending a raw Base transaction, it submits a signed UserOperation. The backend tracks the userOpHash until a real tx hash exists.",
+    "Bundler / EntryPoint":
+      "When the app submits signalIntent, the bundler may accept a UserOperation but the chain transaction may still be pending. Reconciliation bridges that gap.",
+    Paymaster:
+      "If UPay sponsors gas, the paymaster simulation can fail before anything lands on-chain. The local order must not become INTENT_SIGNALED just because sponsorship was attempted.",
+    "Gating Signature":
+      "A maker deposit can require UPay's signer. The sender gets a gating signature for the exact caller/deposit/amount, and signalIntent reverts if those values do not match.",
+    "Escrow / Deposit Contract":
+      "The contract is the source of truth for whether deposit 2607 exists, whether an intent is active, and whether fulfillIntent released funds.",
+    "Signal Intent":
+      "signalIntent is created when the sender reserves $1 of deposit 2607 for @moemix. Without it, the sender could pay Cash App with no protected claim on maker liquidity.",
+    "Fulfill Intent":
+      "fulfillIntent is submitted after Buyer TEE signs the payment attestation. It consumes the intent and releases the reserved USDC to the receiver.",
+    "Contract Receipt / Event Log":
+      "The backend decodes IntentSignaled from the signal transaction. That event gives the intentHash needed for payment verification and future fulfill.",
+    Intent:
+      "An intent is the active reservation between 'sender owes maker fiat' and 'receiver can receive USDC'. If it expires, the buyer flow should stop and prune should release liquidity.",
+    "Buyer TEE Input":
+      "After the sender pays in Cash App, mobile submits encrypted verification input. The backend stores it and queues the attestation job instead of blocking the request forever.",
+    Attestation:
+      "The attestation says the TEE verified the payment for this intentHash and releaseAmount. fulfillIntent depends on this signed evidence.",
+    "Buyer TEE Attestation Job":
+      "A job is created when the backend receives Buyer TEE input. It is picked up inline by the endpoint or later by the worker, then calls the attestation service.",
+    Expiry:
+      "If the sender reserves liquidity at noon and never pays, the intent eventually expires. Mobile should stop showing payment actions after the valid window passes.",
+    Prune:
+      "After an expired intent is detected, pruneExpiredIntents clears it from the contract and the backend decrements outstanding liquidity so the maker's funds can be reused.",
+    Reconciliation:
+      "Reconciliation exists because submit does not equal success. signal_reconcile reads bundler and chain receipts before changing SIGNALING_INTENT into INTENT_SIGNALED.",
+    "Lifecycle Job":
+      "A job is created when work must survive request boundaries, like signal_reconcile after signalIntent submit. It is picked up by inline endpoint processing or the worker dispatcher.",
+    "Job Phase":
+      "If support sees phase buyer_tee, they know the issue is payment verification, not chain release. Phase is the broad area of the lifecycle.",
+    "Job Status":
+      "A buyer_tee job starts queued, becomes running when claimed, then succeeded after attestation or dead after repeated failures. Dead can expose retry_buyer_tee.",
+    "Lifecycle Event":
+      "When signalIntent is submitted, a SIGNAL_SUBMITTED event is written. Later, ZKP2P_JOB_SUCCEEDED records that reconciliation completed.",
+    "Lifecycle Event Type":
+      "If a support snapshot shows ZKP2P_JOB_DEAD after BUYER_TEE_SUBMITTED, support knows the order did not fail on-chain; verification exhausted retries.",
+    "OrderLifecycle Module":
+      "Routes call OrderLifecycle.submitSignal instead of directly setting status. That centralizes event writing, job enqueueing, and allowed action behavior.",
+    "LiquidityLifecycle Module":
+      "Maker deposits use LiquidityLifecycle so deposit_reconcile and liquidity accounting do not get mixed into the sender order code.",
+    "Inline Worker":
+      "After /signal/submit queues signal_reconcile, it immediately tries to run that job. If the receipt is not ready, polling can try again later.",
+    "Debug Snapshot":
+      "When a user says the banner is stuck, the debug snapshot can show order status, chain intent state, jobs, events, and recommended action without exposing secrets.",
+    "System Boundary":
+      "A single send touches mobile, backend, bundler, paymaster, ZKP2P contracts, Cash App, and the attestation service. The boundary map shows which system owns which truth.",
+  };
+
   const PRECISE_UNIT = "1000000000000000000";
   const SEND_AMOUNT_ATOMIC = 1_000_000;
   const CASHOUT_AMOUNT_ATOMIC = 10_000_000;
@@ -1980,6 +2063,16 @@
             note.textContent = concept.note;
             card.appendChild(note);
           }
+
+          const example = document.createElement("p");
+          const exampleLabel = document.createElement("strong");
+          const exampleBody = document.createElement("span");
+          example.className = "concept-example";
+          exampleLabel.textContent = "Example: ";
+          exampleBody.textContent =
+            CONCEPT_EXAMPLES[concept.name] || "No example has been written for this concept yet.";
+          example.append(exampleLabel, exampleBody);
+          card.appendChild(example);
 
           const fields = document.createElement("ul");
           fields.className = "field-list";

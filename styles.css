@@ -300,6 +300,17 @@ code {
   color: var(--ink);
 }
 
+.concept-example {
+  border-left: 3px solid var(--blue);
+  border-radius: 6px;
+  background: var(--blue-soft);
+  padding: 9px 10px;
+}
+
+.concept-example strong {
+  color: var(--blue);
+}
+
 .field-list {
   display: grid;
   gap: 7px;

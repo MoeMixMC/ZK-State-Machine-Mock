@@ -28,7 +28,7 @@ Use the tabs at the top:
 - `UPay Send` simulates a sender reserving maker liquidity, paying the maker, generating Buyer TEE verification, and fulfilling the intent.
 - `Maker Cash Out` simulates a maker creating a deposit that becomes available liquidity.
 - `Catalog` lists the exact statuses, allowed actions, job types, job phases, job statuses, event types, and chain intent states represented by the mock.
-- `Concepts` explains every major entity the system touches, including orders, jobs, lifecycle events, intents, prepare steps, attestations, pruning, deposits, UserOperations, and support/debug surfaces.
+- `Concepts` explains every major entity the system touches, including orders, jobs, lifecycle events, intents, prepare steps, attestations, pruning, deposits, UserOperations, and support/debug surfaces. Each concept includes a concrete example of why it exists.
 
 The right side of the page shows what the backend would be tracking: the order view, maker liquidity, chain intent, jobs, and lifecycle events.
 
