@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UPay ZKP2P State Machine</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Fully mocked lifecycle playground</p>
+          <h1>UPay ZKP2P State Machine</h1>
+        </div>
+        <div class="top-actions">
+          <a class="ghost-link" href="./reference/orderLifecycle.ts">Exact orderLifecycle.ts copy</a>
+          <button id="resetAll" class="danger-soft" type="button">Reset demo</button>
+        </div>
+      </header>
+
+      <section class="tabs" aria-label="State machine flows">
+        <button class="tab active" type="button" data-tab="send">UPay Send</button>
+        <button class="tab" type="button" data-tab="cashout">Maker Cash Out</button>
+        <button class="tab" type="button" data-tab="catalog">Catalog</button>
+        <button class="tab" type="button" data-tab="concepts">Concepts</button>
+      </section>
+
+      <section class="grid">
+        <article class="panel wide">
+          <div class="panel-title">
+            <h2 id="flowTitle">UPay Send Flow</h2>
+            <span id="terminalBadge" class="badge">terminal: false</span>
+          </div>
+          <p id="flowDescription" class="muted"></p>
+          <div id="sendControls" class="controls"></div>
+          <div id="cashoutControls" class="controls hidden"></div>
+          <div id="catalogPanel" class="catalog hidden"></div>
+          <div id="conceptsPanel" class="concepts hidden"></div>
+          <section class="action-explainer" aria-live="polite">
+            <div class="panel-title">
+              <div>
+                <p class="eyebrow">Latest click</p>
+                <h2 id="actionTitle">No action yet</h2>
+              </div>
+              <span id="actionPhase" class="badge">phase: none</span>
+            </div>
+            <p id="actionSummary" class="muted">
+              Click any simulated action to see what the mobile app did, what the backend did, and why that state change matters.
+            </p>
+            <div class="explain-grid">
+              <section>
+                <h3>App</h3>
+                <p id="actionApp"></p>
+              </section>
+              <section>
+                <h3>Backend</h3>
+                <p id="actionBackend"></p>
+              </section>
+              <section>
+                <h3>Why It Matters</h3>
+                <p id="actionWhy"></p>
+              </section>
+            </div>
+            <div class="changes-row">
+              <section>
+                <h3>Observed State Changes</h3>
+                <ul id="actionChanges"></ul>
+              </section>
+              <section>
+                <h3>Recent Clicks</h3>
+                <ol id="actionHistory"></ol>
+              </section>
+            </div>
+          </section>
+        </article>
+
+        <article class="panel">
+          <h2>Order View</h2>
+          <dl id="orderView" class="kv"></dl>
+        </article>
+
+        <article class="panel">
+          <h2>Liquidity / Deposit</h2>
+          <dl id="depositView" class="kv"></dl>
+        </article>
+
+        <article class="panel">
+          <h2>Chain Intent</h2>
+          <dl id="chainView" class="kv"></dl>
+        </article>
+
+        <article class="panel wide">
+          <h2>Jobs</h2>
+          <div id="jobsView" class="table-wrap"></div>
+        </article>
+
+        <article class="panel wide">
+          <h2>Lifecycle Events</h2>
+          <div id="eventsView" class="table-wrap"></div>
+        </article>
+      </section>
+    </main>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
