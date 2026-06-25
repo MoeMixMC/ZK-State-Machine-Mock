@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: ZK-State-Machine-Mock
+    env: static
+    # Point this to your actual build/publish directory (e.g., dist, public, build)
+    publishPath: .
+    routes:
+      - type: header
+        path: /.well-known/assetlinks.json
+        headers:
+          - key: Content-Type
+            value: application/json
+          - key: Access-Control-Allow-Origin
+            value: "*"
+
