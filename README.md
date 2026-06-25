@@ -2,24 +2,12 @@
 
 This is a fully mocked, static webpage for understanding the UPay send and maker cash-out lifecycle.
 
-Open `index.html` directly in a browser:
-
-```bash
-open /home/moemix/projects/state_machine/index.html
-```
-
-On Linux, use your browser or file manager to open the same file.
 
 ## What It Contains
 
 - `index.html` - the simulator page.
 - `styles.css` - page styling.
 - `app.js` - mocked state machine, jobs, lifecycle events, liquidity accounting, and chain intent states.
-- `reference/orderLifecycle.ts` - byte-for-byte copy of the backend module from:
-
-```text
-/home/moemix/projects/upay-web-claude/upay-web-claude/src/server/zkp2p/orderLifecycle.ts
-```
 
 ## How To Read It
 
