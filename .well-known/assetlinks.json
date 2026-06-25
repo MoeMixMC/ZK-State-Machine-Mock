@@ -1,0 +1,11 @@
+{	
+	relation: [
+		"delegate_permission/common.handle_all_urls",
+		"delegate_permission/common.get_login_creds"
+	],
+	target: {
+		namespace: "android_app",
+		package_name: "cash.peers.upay",
+		sha256_cert_fingerprints: ["1E:C3:E8:94:1C:98:76:24:F4:E1:D3:FE:46:58:57:F0:F3:A6:01:2B:E1:52:CB:5D:21:F6:06:06:B4:75:81:AC"]
+	}
+}
